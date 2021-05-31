@@ -1,0 +1,23 @@
+---
+version: "3.8"
+
+services:
+  app:
+    image: 3wordchant/go-ssb-room
+    networks:
+      - proxy
+    environment:
+      - DOMAIN
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.${STACK_NAME}.loadbalancer.server.port=3000"
+        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`${EXTRA_DOMAINS})"
+        - "traefik.http.routers.${STACK_NAME}.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}.tls.certresolver=${LETS_ENCRYPT_ENV}"
+
+networks:
+  proxy:
+    external: true
