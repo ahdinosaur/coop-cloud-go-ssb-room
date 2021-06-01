@@ -3,11 +3,13 @@ version: "3.8"
 
 services:
   app:
-    image: 3wordchant/go-ssb-room
+    image: 3wordchant/go-ssb-room:2.0.3
     networks:
       - proxy
     environment:
       - DOMAIN
+    volumes:
+      - "data:/app/data"
     deploy:
       restart_policy:
         condition: on-failure
@@ -17,7 +19,13 @@ services:
         - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`${EXTRA_DOMAINS})"
         - "traefik.http.routers.${STACK_NAME}.entrypoints=web-secure"
         - "traefik.http.routers.${STACK_NAME}.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.tcp.routers.${STACK_NAME}-muxrpc.rule=HostSNI(`*`)"
+        - "traefik.tcp.routers.${STACK_NAME}-muxrpc.entrypoints=ssb-muxrpc"
+        - "traefik.tcp.services.${STACK_NAME}-muxrpc.loadbalancer.server.port=8008"
 
 networks:
   proxy:
     external: true
+
+volumes:
+  data:
