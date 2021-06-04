@@ -16,9 +16,12 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.services.${STACK_NAME}.loadbalancer.server.port=3000"
-        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`${EXTRA_DOMAINS})"
+        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`) || HostRegexp(`{subdomain:\\w+}.${DOMAIN}`)"
         - "traefik.http.routers.${STACK_NAME}.entrypoints=web-secure"
         - "traefik.http.routers.${STACK_NAME}.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}.middlewares=${STACK_NAME}-redirect-aliases@docker"
+        - "traefik.http.middlewares.${STACK_NAME}-redirect-aliases.redirectregex.regex=^https://(\\w+)\\.${DOMAIN}/(.*)"
+        - "traefik.http.middlewares.${STACK_NAME}-redirect-aliases.redirectregex.replacement=https://${DOMAIN}/alias/$${1}$${2}"
         - "traefik.tcp.routers.${STACK_NAME}-muxrpc.rule=HostSNI(`*`)"
         - "traefik.tcp.routers.${STACK_NAME}-muxrpc.entrypoints=ssb-muxrpc"
         - "traefik.tcp.services.${STACK_NAME}-muxrpc.loadbalancer.server.port=8008"
