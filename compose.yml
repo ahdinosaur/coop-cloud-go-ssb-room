@@ -1,6 +1,4 @@
----
 version: "3.8"
-
 services:
   app:
     image: 3wordchant/go-ssb-room:2.0.3
@@ -25,10 +23,9 @@ services:
         - "traefik.tcp.routers.${STACK_NAME}-muxrpc.rule=HostSNI(`*`)"
         - "traefik.tcp.routers.${STACK_NAME}-muxrpc.entrypoints=ssb-muxrpc"
         - "traefik.tcp.services.${STACK_NAME}-muxrpc.loadbalancer.server.port=8008"
-
+        - coop-cloud.${STACK_NAME}.app.version=2.0.3-eec92a23
 networks:
   proxy:
     external: true
-
 volumes:
   data:
